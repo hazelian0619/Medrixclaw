@@ -1,0 +1,56 @@
+name: OpenClaw Auto Sync
+
+on:
+  repository_dispatch:
+    types: [sync-requested]
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Trigger OpenClaw Subagent
+        run: |
+          echo "🤖 Spawning OpenClaw subagent for sync..."
+          
+          # This requires OpenClaw gateway to be accessible
+          # Configure these secrets in your repo settings:
+          # - OPENCLAW_GATEWAY_URL: Your OpenClaw gateway URL
+          # - OPENCLAW_GATEWAY_TOKEN: Your gateway auth token
+          
+          if [ -z "${{ secrets.OPENCLAW_GATEWAY_URL }}" ]; then
+            echo "⚠️  OpenClaw gateway not configured"
+            echo "To enable auto-sync, add these secrets:"
+            echo "  - OPENCLAW_GATEWAY_URL"
+            echo "  - OPENCLAW_GATEWAY_TOKEN"
+            exit 0
+          fi
+          
+          # Send sync request to OpenClaw
+          curl -X POST "${{ secrets.OPENCLAW_GATEWAY_URL }}/sessions/spawn" \
+            -H "Authorization: Bearer ${{ secrets.OPENCLAW_GATEWAY_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "task": "Sync openclaw-scientific-skill with Claude Scientific Skills. Check https://github.com/K-Dense-AI/claude-scientific-skills for recent changes, analyze what needs to be updated, and make the necessary changes to this repository. Focus on: 1) New databases or APIs added, 2) Updated code examples, 3) New scripts or utilities. Keep changes minimal and focused.",
+              "runtime": "subagent",
+              "cwd": "/tmp/sync",
+              "attachAs": {
+                "mountPath": "."
+              }
+            }'
+
+      - name: Commit changes
+        run: |
+          git config user.name "openclaw-bot"
+          git config user.email "openclaw-bot@users.noreply.github.com"
+          
+          if git diff --quiet; then
+            echo "No changes to commit"
+          else
+            git add -A
+            git commit -m "🤖 Auto-sync with Claude Scientific Skills"
+            git push
+          fi

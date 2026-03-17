@@ -1,0 +1,144 @@
+name: Sync with Claude Scientific Skills
+
+on:
+  schedule:
+    # 每天检查一次 (UTC 0:00)
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    # 手动触发
+    inputs:
+      force_sync:
+        description: 'Force sync even if no changes detected'
+        required: false
+        default: 'false'
+
+jobs:
+  check-and-sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install requests pyyaml
+
+      - name: Check upstream for updates
+        id: check
+        env:
+          UPSTREAM_REPO: K-Dense-AI/claude-scientific-skills
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FORCE_SYNC: ${{ github.event.inputs.force_sync }}
+        run: |
+          python3 << 'EOF'
+          import requests
+          import os
+          import json
+
+          # Get latest commit from upstream
+          upstream = os.environ['UPSTREAM_REPO']
+          headers = {'Accept': 'application/vnd.github.v3+json'}
+          
+          # Get latest commit
+          resp = requests.get(
+              f'https://api.github.com/repos/{upstream}/commits/main',
+              headers=headers
+          )
+          
+          if resp.status_code != 200:
+              print(f"Error fetching upstream: {resp.status_code}")
+              exit(1)
+          
+          latest_sha = resp.json()['sha']
+          
+          # Read last synced SHA
+          try:
+              with open('.upstream_sha', 'r') as f:
+                  last_sha = f.read().strip()
+          except:
+              last_sha = ''
+          
+          print(f"Last synced SHA: {last_sha}")
+          print(f"Latest upstream SHA: {latest_sha}")
+          
+          # Check if we need to sync
+          if latest_sha != last_sha or os.environ.get('FORCE_SYNC') == 'true':
+              print("has_changes=true" >> $GITHUB_OUTPUT)
+              print(f"upstream_sha={latest_sha}" >> $GITHUB_OUTPUT)
+              with open('.upstream_sha', 'w') as f:
+                  f.write(latest_sha)
+          else:
+              print("has_changes=false" >> $GITHUB_OUTPUT)
+          EOF
+
+      - name: Create sync task
+        if: steps.check.outputs.has_changes == 'true'
+        run: |
+          mkdir -p .sync_tasks
+          cat > .sync_tasks/task.md << 'TASK'
+          # Sync Task
+
+          The upstream Claude Scientific Skills repository has been updated.
+
+          Please analyze the changes and update this repository accordingly:
+
+          1. Visit https://github.com/K-Dense-AI/claude-scientific-skills
+          2. Check the latest commits and changes
+          3. Update the following files if needed:
+             - SKILL.md (if core structure changed)
+             - references/*.md (if domain content updated)
+             - scripts/*.py (if new utilities added)
+          4. Keep the changes minimal and focused
+          5. Maintain compatibility with OpenClaw
+
+          Important:
+          - Don't copy everything blindly
+          - Focus on meaningful additions
+          - Keep file sizes reasonable
+          - Maintain the existing structure
+          TASK
+
+      - name: Commit upstream SHA
+        if: steps.check.outputs.has_changes == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .upstream_sha 2>/dev/null || true
+          git commit -m "chore: update upstream SHA to ${{ steps.check.outputs.upstream_sha }}" || true
+          git push
+
+      - name: Notify maintainer
+        if: steps.check.outputs.has_changes == 'true'
+        run: |
+          echo "🔔 Upstream repository has been updated!"
+          echo "Run the sync subagent manually or wait for automated sync."
+          echo ""
+          echo "Upstream SHA: ${{ steps.check.outputs.upstream_sha }}"
+          echo "Check: https://github.com/K-Dense-AI/claude-scientific-skills/commits/main"
+
+  # Auto-sync using OpenClaw subagent (optional)
+  auto-sync:
+    needs: check-and-sync
+    if: needs.check-and-sync.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Trigger OpenClaw sync
+        # This would call your OpenClaw instance to spawn a subagent
+        # Requires OpenClaw gateway to be accessible
+        run: |
+          echo "To enable auto-sync, configure OpenClaw gateway endpoint"
+          echo "See: https://docs.openclaw.ai"
