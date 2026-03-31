@@ -8,18 +8,18 @@ set -euo pipefail
 # 4) Run acceptance scripts
 #
 # Usage:
-#   SCIENCECLAW_HOST=root@1.2.3.4 ./one_click_cloud_deploy.sh
-#   SCIENCECLAW_HOST=root@1.2.3.4 ./one_click_cloud_deploy.sh --phase all
+#   METRIXCLAW_HOST=root@1.2.3.4 ./one_click_cloud_deploy.sh
+#   METRIXCLAW_HOST=root@1.2.3.4 ./one_click_cloud_deploy.sh --phase all
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DEPLOY_SCRIPT="${ROOT_DIR}/scripts/deploy_to_huawei.sh"
 
-HOST="${SCIENCECLAW_HOST:-root@124.70.163.130}"
-REMOTE_WORKSPACE="${SCIENCECLAW_REMOTE_WORKSPACE:-/root/.openclaw/workspace}"
-IDENTITY="${SCIENCECLAW_IDENTITY:-$HOME/.ssh/id_ed25519}"
-SSH_PORT="${SCIENCECLAW_SSH_PORT:-22}"
+HOST="${METRIXCLAW_HOST:-root@124.70.163.130}"
+REMOTE_WORKSPACE="${METRIXCLAW_REMOTE_WORKSPACE:-/root/.openclaw/workspace}"
+IDENTITY="${METRIXCLAW_IDENTITY:-$HOME/.ssh/id_ed25519}"
+SSH_PORT="${METRIXCLAW_SSH_PORT:-22}"
 IDENTITY_REQUIRED=0
-if [[ -n "${SCIENCECLAW_IDENTITY:-}" ]]; then
+if [[ -n "${METRIXCLAW_IDENTITY:-}" ]]; then
   IDENTITY_REQUIRED=1
 fi
 PHASE="2" # 2 | 3 | all | none
@@ -115,11 +115,11 @@ echo "[one-click] summary=${SUMMARY_JSON}"
 
 if [[ "${SKIP_DEPLOY}" -eq 0 ]]; then
   DEPLOY_ENV=(
-    "SCIENCECLAW_HOST=${HOST}"
-    "SCIENCECLAW_REMOTE_WORKSPACE=${REMOTE_WORKSPACE}"
+    "METRIXCLAW_HOST=${HOST}"
+    "METRIXCLAW_REMOTE_WORKSPACE=${REMOTE_WORKSPACE}"
   )
   if [[ -f "${IDENTITY}" ]]; then
-    DEPLOY_ENV+=("SCIENCECLAW_IDENTITY=${IDENTITY}")
+    DEPLOY_ENV+=("METRIXCLAW_IDENTITY=${IDENTITY}")
   fi
   if env "${DEPLOY_ENV[@]}" "${DEPLOY_SCRIPT}"; then
     log_step "deploy" "ok" "skills synced"
@@ -131,28 +131,28 @@ else
   log_step "deploy" "skip" "--skip-deploy set"
 fi
 
-if run_remote "[[ -x \"${REMOTE_WORKSPACE}/skills/scienceclaw_installer/run.sh\" ]]"; then
+if run_remote "[[ -x \"${REMOTE_WORKSPACE}/skills/metrixclaw_installer/run.sh\" ]]"; then
   log_step "precheck_installer" "ok" "installer script found"
 else
   log_step "precheck_installer" "fail" "missing installer script on remote"
   exit 21
 fi
 
-if run_remote "[[ -f \"${REMOTE_WORKSPACE}/skills/scienceclaw_meta/verify_mandatory_skills.py\" ]]"; then
+if run_remote "[[ -f \"${REMOTE_WORKSPACE}/skills/metrixclaw_meta/verify_mandatory_skills.py\" ]]"; then
   log_step "precheck_mandatory_verify" "ok" "verify_mandatory_skills.py found"
 else
   log_step "precheck_mandatory_verify" "fail" "missing verify_mandatory_skills.py on remote"
   exit 22
 fi
 
-if run_remote "bash \"${REMOTE_WORKSPACE}/skills/scienceclaw_installer/run.sh\""; then
-  log_step "installer" "ok" "scienceclaw_installer run.sh passed"
+if run_remote "bash \"${REMOTE_WORKSPACE}/skills/metrixclaw_installer/run.sh\""; then
+  log_step "installer" "ok" "metrixclaw_installer run.sh passed"
 else
   log_step "installer" "fail" "installer failed"
   exit 11
 fi
 
-if run_remote "python3 \"${REMOTE_WORKSPACE}/skills/scienceclaw_meta/verify_mandatory_skills.py\" --workspace \"${REMOTE_WORKSPACE}\" --strict"; then
+if run_remote "python3 \"${REMOTE_WORKSPACE}/skills/metrixclaw_meta/verify_mandatory_skills.py\" --workspace \"${REMOTE_WORKSPACE}\" --strict"; then
   log_step "mandatory_verify" "ok" "mandatory skills verified"
 else
   log_step "mandatory_verify" "fail" "mandatory skills verification failed"
@@ -161,7 +161,7 @@ fi
 
 case "${PHASE}" in
   2)
-    if run_remote "bash \"${REMOTE_WORKSPACE}/skills/scienceclaw_meta/phase2_acceptance_vm.sh\""; then
+    if run_remote "bash \"${REMOTE_WORKSPACE}/skills/metrixclaw_meta/phase2_acceptance_vm.sh\""; then
       log_step "acceptance_phase2" "ok" "phase2 passed"
     else
       log_step "acceptance_phase2" "fail" "phase2 failed"
@@ -169,7 +169,7 @@ case "${PHASE}" in
     fi
     ;;
   3)
-    if run_remote "bash \"${REMOTE_WORKSPACE}/skills/scienceclaw_meta/phase3_acceptance_vm.sh\""; then
+    if run_remote "bash \"${REMOTE_WORKSPACE}/skills/metrixclaw_meta/phase3_acceptance_vm.sh\""; then
       log_step "acceptance_phase3" "ok" "phase3 passed"
     else
       log_step "acceptance_phase3" "fail" "phase3 failed"
@@ -177,7 +177,7 @@ case "${PHASE}" in
     fi
     ;;
   all)
-    if run_remote "bash \"${REMOTE_WORKSPACE}/skills/scienceclaw_meta/phase_all_acceptance_vm.sh\""; then
+    if run_remote "bash \"${REMOTE_WORKSPACE}/skills/metrixclaw_meta/phase_all_acceptance_vm.sh\""; then
       log_step "acceptance_all" "ok" "phase all passed"
     else
       log_step "acceptance_all" "fail" "phase all failed"

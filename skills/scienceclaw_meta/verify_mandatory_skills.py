@@ -11,7 +11,7 @@ def _read_json(path: Path) -> dict:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Verify mandatory ScienceClaw skills are installed and runnable-ready.")
+    ap = argparse.ArgumentParser(description="Verify mandatory MetrixClaw skills are installed and runnable-ready.")
     ap.add_argument(
         "--workspace",
         default=str(Path.home() / ".openclaw" / "workspace"),

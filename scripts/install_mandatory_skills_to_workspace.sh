@@ -9,7 +9,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SRC_SKILLS="${ROOT_DIR}/skills"
-META_DIR="${SRC_SKILLS}/scienceclaw_meta"
+META_DIR="${SRC_SKILLS}/metrixclaw_meta"
 MANDATORY_JSON="${META_DIR}/mandatory_skills.json"
 
 WORKSPACE="${OPENCLAW_WORKSPACE:-$HOME/.openclaw/workspace}"

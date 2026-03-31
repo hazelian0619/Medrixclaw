@@ -1,11 +1,11 @@
-# Medrixclaw Cloud Onboarding (First 3 Messages)
+# MetrixClaw Cloud Onboarding (First 3 Messages)
 
 目标：用户第一次进入 Claw 对话时，30 秒内知道“我能做什么、怎么开始、下一步给什么输入”。
 
 ## First Message (assistant)
 
 ```
-你好，我是 Medrixclaw。
+你好，我是 MetrixClaw。
 我可以直接帮你做 4 类任务：
 1) 文献简报（输入研究问题）
 2) PDF 简报（输入 PDF 路径）
@@ -55,7 +55,7 @@
 ## Backend Integration Notes
 
 - 建议把这段引导作为新会话第一条系统回复模板。
-- 机器可读模板可直接使用：`skills/scienceclaw_meta/onboarding_quickstart.json`
+- 机器可读模板可直接使用：`skills/metrixclaw_meta/onboarding_quickstart.json`
 - 用户若未给绝对路径，先提醒补充绝对路径再执行。
 - 执行完成后统一返回：
   - `runDir`

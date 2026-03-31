@@ -1,4 +1,4 @@
-# Medrixclaw 通用 Claw 标准化评分卡（2026-03-31）
+# MetrixClaw 通用 Claw 标准化评分卡（2026-03-31）
 
 目标：从“后端可一键接入云端、用户可立即可用”的角度，评估当前仓库与行业通用 Claw 基线的差距。
 
@@ -18,10 +18,10 @@
 | 维度 | 权重 | 当前分 | 评分依据（仓库证据） |
 |---|---:|---:|---|
 | 一键云部署自动化 | 20 | 16 | 已有 `scripts/one_click_cloud_deploy.sh`，串联 deploy/installer/mandatory verify/acceptance，并输出 deploy report JSON |
-| 必选技能治理 | 15 | 15 | `skills/scienceclaw_meta/mandatory_skills.json` + `verify_mandatory_skills.py --strict`，当前 mandatory 26/26 可通过 |
-| 首次使用引导 | 10 | 8 | `docs/CLOUD_ONBOARDING_CHAT_GUIDE.md` + `skills/scienceclaw_meta/onboarding_quickstart.json` 已提供首 3 轮引导模板 |
+| 必选技能治理 | 15 | 15 | `skills/metrixclaw_meta/mandatory_skills.json` + `verify_mandatory_skills.py --strict`，当前 mandatory 26/26 可通过 |
+| 首次使用引导 | 10 | 8 | `docs/CLOUD_ONBOARDING_CHAT_GUIDE.md` + `skills/metrixclaw_meta/onboarding_quickstart.json` 已提供首 3 轮引导模板 |
 | 通用能力覆盖面 | 15 | 12 | 文献/PDF/表格/VCF/omics 工作流齐备，且有 orchestrator 路由入口 |
-| 验收与质量门控 | 15 | 12 | phase2/phase3/all 验收脚本 + `scienceclaw_bundle_lint` + `scienceclaw_pack_validate` |
+| 验收与质量门控 | 15 | 12 | phase2/phase3/all 验收脚本 + 质量门控技能 + 包契约校验 |
 | 可观测与审计 | 10 | 7 | runDir + artifacts + manifest + deploy report 已有；缺少统一 metrics/exporter 与告警策略 |
 | 后端接入契约清晰度 | 10 | 6 | README/Runbook 已有路径与命令；缺少正式 API 契约与版本化兼容矩阵 |
 | 企业级安全与多租户 | 5 | 2 | allowlist/离线模式已有；缺少租户隔离、配额、细粒度 RBAC、审计留存策略 |
