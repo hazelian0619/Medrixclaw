@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "version": "1.0.0",
+  "assistantName": "Medrixclaw",
+  "firstMessage": "你好，我是 Medrixclaw。我可以直接帮你做 4 类任务：1) 文献简报（输入研究问题）2) PDF 简报（输入 PDF 路径）3) PDF 表格抽取（输入 PDF 路径）4) VCF 注释与简报（输入 VCF 路径）。回复数字 1/2/3/4，我会继续引导你。",
+  "options": {
+    "1": {
+      "label": "文献简报",
+      "intent": "scienceclaw_workflow_lit_brief",
+      "prompt": "请发我研究问题（query），例如：GLM-5 在生物医学 Agent 中的应用。我将输出：brief.md + citations.bib + evidence.json",
+      "inputRules": {
+        "required": [
+          "query"
+        ]
+      }
+    },
+    "2": {
+      "label": "PDF 简报",
+      "intent": "scienceclaw_workflow_pdf_brief",
+      "prompt": "请给我 PDF 绝对路径，例如：/data/papers/xxx.pdf。我将输出结构化简报与证据链。",
+      "inputRules": {
+        "required": [
+          "pdf_path"
+        ],
+        "mustBeAbsolutePath": true
+      }
+    },
+    "3": {
+      "label": "PDF 表格抽取",
+      "intent": "scienceclaw_workflow_table_to_csv",
+      "prompt": "请给我 PDF 绝对路径，例如：/data/papers/xxx.pdf。我将输出：tables.csv + tables.json + evidence.json",
+      "inputRules": {
+        "required": [
+          "pdf_path"
+        ],
+        "mustBeAbsolutePath": true
+      }
+    },
+    "4": {
+      "label": "VCF 注释与简报",
+      "intent": "scienceclaw_workflow_vcf_annotate_brief",
+      "prompt": "请给我 VCF 绝对路径，例如：/data/vcf/sample.vcf.gz。我将输出注释结果、summary 和证据链简报。",
+      "inputRules": {
+        "required": [
+          "vcf_path"
+        ],
+        "mustBeAbsolutePath": true
+      }
+    }
+  },
+  "executionConfirmMessage": "已收到，我现在开始执行。完成后会返回 runDir，并告诉你关键产物文件路径。",
+  "resultContract": {
+    "alwaysReturn": [
+      "runDir",
+      "keyArtifacts"
+    ],
+    "keyArtifactsMinCount": 2,
+    "keyArtifactsMaxCount": 4
+  }
+}
